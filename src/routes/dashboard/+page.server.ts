@@ -1,14 +1,15 @@
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load = (async ({ url, locals: { getSession, db } }) => {
+export const load = (async ({ locals: { getSession, db } }) => {
   const session = await getSession();
+  if (session?.user.id == null) {
+    throw redirect(302, '/auth/login');
+  }
 
-  const query = await db
-    .from('websites')
-    .select('*,website_users!inner(user_id,role)')
-    .eq('website_users.user_id', session!.user.id);
+  const query = await db.from('knowledges').select('*').eq('user_id', session.user.id);
 
-  const websites = query.data;
+  const knowledges = query.data;
 
-  return { session, websites };
+  return { session, knowledges };
 }) satisfies PageServerLoad;

@@ -10,7 +10,8 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest",
     "lint": "prettier --plugin-search-dir . --check . && eslint .",
-    "format": "prettier --plugin-search-dir . --write ."
+    "format": "prettier --plugin-search-dir . --write .",
+    "gen:types": "supabase gen types --linked types typescript > src/lib/server/schema.ts"
   },
   "devDependencies": {
     "@sveltejs/adapter-cloudflare": "^2.3.2",
@@ -41,6 +42,7 @@
     "@supabase/auth-ui-svelte": "^0.2.2",
     "@supabase/supabase-js": "^2.31.0",
     "dayjs": "^1.11.9",
-    "langchain": "^0.0.153"
+    "langchain": "^0.0.153",
+    "openai": "^4.8.0"
   }
 }
