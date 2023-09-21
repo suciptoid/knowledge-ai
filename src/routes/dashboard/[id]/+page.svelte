@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { enhance } from '$app/forms';
+  import { navigating } from '$app/stores';
   import type { ActionData, PageServerData } from './$types';
 
   export let data: PageServerData;
@@ -10,7 +12,12 @@
 <div id="website-lists" class="gap-4 rounded-md bg-white p-8">
   Document count: {data.count}
 
-  <form action="" method="post">
+  {#if form?.text}
+    Response:
+    {form?.text}
+  {/if}
+
+  <form action="" method="post" use:enhance>
     <fieldset class="flex items-center gap-2">
       <input
         type="text"

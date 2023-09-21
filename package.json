@@ -42,6 +42,7 @@
     "@supabase/auth-ui-svelte": "^0.2.2",
     "@supabase/supabase-js": "^2.31.0",
     "dayjs": "^1.11.9",
+    "gpt-tokenizer": "^2.1.1",
     "langchain": "^0.0.153",
     "openai": "^4.8.0"
   }

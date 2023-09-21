@@ -1,8 +1,9 @@
 import { openAi } from '$lib/openai';
 import type { Actions, PageServerLoad } from './$types';
+import { encode } from 'gpt-tokenizer/esm/model/text-davinci-003';
 
-export const load = (async ({ params, locals: { db, getSession, supabase } }) => {
-  const session = await getSession();
+export const load = (async ({ params, locals: { db } }) => {
+  // const session = await getSession();
   const docs = await db
     .from('documents')
     .select('*', { count: 'exact', head: true })
@@ -33,10 +34,50 @@ export const actions = {
     });
     console.log('error', error);
 
-    console.log('embed response', embeds, documents);
+    const maxToken = 1500;
+    let tokenCount = 0;
+    let contextText = '';
+
+    documents?.forEach((doc) => {
+      const encoded = encode(doc.content);
+      console.log('doc id', doc.id, 'token length:', encoded.length);
+      tokenCount += encode.length;
+
+      if (tokenCount > maxToken) {
+        return false;
+      }
+      contextText += `${doc.content.trim()}\n---\n`;
+    });
+
+    let prompt = `You are a very enthusiastic Assistant who loves to help people! Given the following sections from the personal knowledge base, answer the question using only that information, outputted in markdown format. If you are unsure and the answer is not explicitly written in the documentation, say "Sorry, I don't know how to help with that".`;
+    prompt += `
+
+    Context sections: 
+    ${contextText}
+
+    Question: """
+    ${content}
+    """
+
+    Answer as markdown (including related code snippets if available) and use same language as question language event if you dont know:
+    `;
+
+    const complete = await openAi.completions.create({
+      model: 'text-davinci-003',
+      prompt,
+      max_tokens: 512,
+      temperature: 0
+    });
+
+    const {
+      id,
+      choices: [{ text }]
+    } = complete;
+
+    console.log('propmpt', text, id);
     return {
-      embeds,
-      documents
+      text,
+      id
     };
   }
 } satisfies Actions;
