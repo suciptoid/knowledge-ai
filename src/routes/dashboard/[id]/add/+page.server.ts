@@ -1,10 +1,13 @@
 import type { Actions } from './$types';
-import { openai } from '$lib/server/openai';
+import OpenAI from 'openai';
+import { env } from '$env/dynamic/private';
 
 export const actions = {
   default: async ({ request, params, locals: { db } }) => {
     const form = await request.formData();
     const content = form.get('content')?.toString() ?? '';
+
+    const openai = new OpenAI({ apiKey: env.OPENAI_KEY });
 
     const embeds = await openai.embeddings.create({
       input: content,

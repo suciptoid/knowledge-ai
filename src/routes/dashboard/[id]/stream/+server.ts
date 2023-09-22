@@ -1,10 +1,13 @@
-import { openai } from '$lib/server/openai';
+import OpenAI from 'openai';
 import type { RequestHandler } from './$types';
 import { encode } from 'gpt-tokenizer/esm/model/gpt-3.5-turbo';
+import { env } from '$env/dynamic/private';
 
 export const POST: RequestHandler = async ({ request, params, locals: { db } }) => {
   const form = await request.json();
   const content = form.prompt;
+
+  const openai = new OpenAI({ apiKey: env.OPENAI_KEY });
 
   const embeds = await openai.embeddings.create({
     input: content,
