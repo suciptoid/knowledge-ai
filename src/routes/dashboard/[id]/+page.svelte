@@ -88,7 +88,7 @@
           : 'self-end'}"
       >
         <div class="text-md font-medium">{h.from}</div>
-        <div>{h.message}</div>
+        <div class="whitespace-pre-wrap">{h.message}</div>
       </div>
     {/each}
     {#if streaming}
