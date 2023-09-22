@@ -1,6 +1,4 @@
-import { openAi } from '$lib/openai';
-import type { Actions, PageServerLoad } from './$types';
-import { encode } from 'gpt-tokenizer/esm/model/text-davinci-003';
+import type { PageServerLoad } from './$types';
 
 export const load = (async ({ params, locals: { db } }) => {
   // const session = await getSession();
@@ -10,74 +8,84 @@ export const load = (async ({ params, locals: { db } }) => {
     .eq('knowledge_id', params.id);
 
   return {
+    document: docs.data,
     count: docs.count
   };
 }) satisfies PageServerLoad;
 
-export const actions = {
-  default: async ({ params, request, locals: { db } }) => {
-    const form = await request.formData();
-    const content = form.get('prompt')?.toString() ?? '';
+// export const actions = {
+//   default: async ({ params, request, locals: { db } }) => {
+//     const form = await request.formData();
+//     const content = form.get('prompt')?.toString() ?? '';
 
-    const embeds = await openAi.embeddings.create({
-      input: content,
-      model: 'text-embedding-ada-002'
-    });
+//     const embeds = await openAi.embeddings.create({
+//       input: content,
+//       model: 'text-embedding-ada-002'
+//     });
 
-    const [{ embedding }] = embeds.data;
+//     const [{ embedding }] = embeds.data;
 
-    const { data: documents, error } = await db.rpc('match_documents', {
-      knowledge_id: params.id,
-      query_embedding: embedding,
-      match_threshold: 0.78, // Choose an appropriate threshold for your data
-      match_count: 10 // Choose the number of matches
-    });
-    console.log('error', error);
+//     const { data: documents, error } = await db.rpc('match_documents', {
+//       knowledge_id: params.id,
+//       query_embedding: embedding,
+//       match_threshold: 0.78, // Choose an appropriate threshold for your data
+//       match_count: 10 // Choose the number of matches
+//     });
+//     console.log('error', error);
 
-    const maxToken = 1500;
-    let tokenCount = 0;
-    let contextText = '';
+//     const maxToken = 1500;
+//     let tokenCount = 0;
+//     let contextText = '';
 
-    documents?.forEach((doc) => {
-      const encoded = encode(doc.content);
-      console.log('doc id', doc.id, 'token length:', encoded.length);
-      tokenCount += encode.length;
+//     console.log('documents count', documents?.length);
 
-      if (tokenCount > maxToken) {
-        return false;
-      }
-      contextText += `${doc.content.trim()}\n---\n`;
-    });
+//     if (documents) {
+//       for (let i = 0; i < documents.length; i++) {
+//         const doc = documents[i];
+//         const encoded = encode(doc.content);
+//         console.log('doc id', doc.id, 'token length:', encoded.length);
+//         tokenCount += encoded.length;
 
-    let prompt = `You are a very enthusiastic Assistant who loves to help people! Given the following sections from the personal knowledge base, answer the question using only that information, outputted in markdown format. If you are unsure and the answer is not explicitly written in the documentation, say "Sorry, I don't know how to help with that".`;
-    prompt += `
+//         if (tokenCount > maxToken) {
+//           break;
+//         }
 
-    Context sections: 
-    ${contextText}
+//         contextText += `${doc.content.trim()}\n---\n`;
+//       }
+//     }
 
-    Question: """
-    ${content}
-    """
+//     console.log('context', contextText);
+//     console.log('----\n\n');
 
-    Answer as markdown (including related code snippets if available) and use same language as question language event if you dont know:
-    `;
+//     let prompt = `You are a very enthusiastic Assistant who loves to help people! Given the following sections from the personal knowledge base, answer the question using only that information, outputted in markdown format. If you are unsure and the answer is not explicitly written in the documentation, say "Sorry, I don't know how to help with that".`;
+//     prompt += `
 
-    const complete = await openAi.completions.create({
-      model: 'text-davinci-003',
-      prompt,
-      max_tokens: 512,
-      temperature: 0
-    });
+//     Context sections:
+//     ${contextText}
 
-    const {
-      id,
-      choices: [{ text }]
-    } = complete;
+//     Question: """
+//     ${content}
+//     """
 
-    console.log('propmpt', text, id);
-    return {
-      text,
-      id
-    };
-  }
-} satisfies Actions;
+//     Answer as markdown (including related code snippets if available) and use same language as question language event if you dont know:
+//     `;
+
+//     const complete = await openAi.completions.create({
+//       model: 'gpt-3.5-turbo-instruct',
+//       prompt,
+//       max_tokens: 1500,
+//       temperature: 0
+//     });
+
+//     const {
+//       id,
+//       choices: [{ text }],
+//       usage
+//     } = complete;
+
+//     return {
+//       text,
+//       id
+//     };
+//   }
+// } satisfies Actions;
