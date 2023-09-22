@@ -37,7 +37,7 @@ export interface Database {
         };
         Insert: {
           content?: string | null;
-          embedding?: string | null;
+          embedding?: number[] | string | null;
           id?: string;
           knowledge_id?: string | null;
         };

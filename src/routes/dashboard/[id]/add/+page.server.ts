@@ -1,12 +1,12 @@
 import type { Actions } from './$types';
-import { openAi } from '$lib/openai';
+import { openai } from '$lib/server/openai';
 
 export const actions = {
-  default: async ({ request, params, locals: { db, supabase } }) => {
+  default: async ({ request, params, locals: { db } }) => {
     const form = await request.formData();
     const content = form.get('content')?.toString() ?? '';
 
-    const embeds = await openAi.embeddings.create({
+    const embeds = await openai.embeddings.create({
       input: content,
       model: 'text-embedding-ada-002'
     });

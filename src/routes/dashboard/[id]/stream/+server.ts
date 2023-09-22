@@ -1,4 +1,4 @@
-import { openAi } from '$lib/openai';
+import { openai } from '$lib/server/openai';
 import type { RequestHandler } from './$types';
 import { encode } from 'gpt-tokenizer/esm/model/gpt-3.5-turbo';
 
@@ -6,7 +6,7 @@ export const POST: RequestHandler = async ({ request, params, locals: { db } }) 
   const form = await request.json();
   const content = form.prompt;
 
-  const embeds = await openAi.embeddings.create({
+  const embeds = await openai.embeddings.create({
     input: content,
     model: 'text-embedding-ada-002'
   });
@@ -58,7 +58,7 @@ export const POST: RequestHandler = async ({ request, params, locals: { db } }) 
     Answer as markdown (including related code snippets if available) and use same language as question language event if you dont know:
     `;
 
-  const complete = await openAi.completions.create({
+  const complete = await openai.completions.create({
     model: 'gpt-3.5-turbo-instruct',
     prompt,
     max_tokens: 1500,
