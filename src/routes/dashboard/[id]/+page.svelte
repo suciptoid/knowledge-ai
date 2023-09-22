@@ -77,9 +77,14 @@
   }
 </script>
 
-<h2 class="mb-4 font-medium">Knowledge</h2>
+<div class="mb-4 flex items-center justify-between">
+  <h2 class="font-medium">Knowledge</h2>
+  <a href={`${$page.url.pathname}/add`} class="rounded-md bg-green-500 px-3 py-2 text-sm text-white"
+    >Add Document</a
+  >
+</div>
 
-<div id="website-lists" class="gap-4 rounded-md bg-white p-8">
+<div id="chat-lists" class="gap-4 rounded-md bg-white p-8">
   <div id="chat-box" class="flex flex-col gap-2 py-4">
     {#each history as h}
       <div
